@@ -1,0 +1,28 @@
+{
+    "id": "85EFCE41",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1770740705456.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "id": "844129663c4b4345a72f89c66f6ce219",
+        "name": "plot_MFPI_beta",
+        "title": "plot_MFPI_beta",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 19422065456840819,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1770740705456,
+    "read_only": false,
+    "read_only_alternatives": []
+}
