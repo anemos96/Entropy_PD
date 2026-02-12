@@ -1,7 +1,11 @@
+############# Pearson Correlation ###############
 #################################################
-############### Cluster Analysis ################
 #################################################
-#################################################
+# Author: Ettore Napoli
+# Date: February 2026
+# Dependencies: tidyverse, Hmisc, readxl, ggpubr
+
+# Install packages
 install.packages('tidyverse');
 install.packages('Hmisc');
 install.packages('ggpubr')
@@ -10,9 +14,10 @@ library(tidyverse);
 library(Hmisc);
 library(ggpubr)
 
+# Load custom func
 source("Custom_Function/flattenCorrMatrix.R")
 
-
+# Load data
 data = read_xlsx('Data_Table.xlsx');
 data = data.frame(data);
 
@@ -95,7 +100,7 @@ plot_MFPI_beta <- ggscatter(data_noDemo, x = "ApEN_Ant_Beta", y = "MFPI_Inflessi
   theme_minimal() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) # Centra il titolo
 
-# Save
+# Save Plots
 ggsave("Figures/MFPI_theta.png", plot = plot_MFPI_theta, bg = "white")
 ggsave("Figures/MFPI_beta.png", plot = plot_MFPI_beta, bg = "white")
 
