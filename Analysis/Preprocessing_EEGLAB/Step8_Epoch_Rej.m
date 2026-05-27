@@ -1,14 +1,14 @@
 %%% Step8: Epoch Rejection. Reject epochs exceeding +/-100uV and save corresponding indices %%%
 
-%%% Step8: Epoch Rejection. Reject epochs exceeding +/-100uV and save corresponding indices %%%
+clear all; close all;
 
 % Initialize EEGLAB
 addpath('/mnt/raid/software/eeglab2024.1/')
 eeglab
 
 % Set relevant folders
-input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Preprocessing_Output/Step7_Epoching';
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Preprocessing_Output/Step8_Epoch_Rej';
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step7_Epoching/'
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step8_Epoch_Rej/'
 
 % Create output folder if it does not exist
 if ~exist(output_folder, 'dir')
@@ -27,7 +27,7 @@ for i = 1:length(file_list)
     % Find epochs exceeding +/-100 uV
     EEG = pop_eegthresh(EEG, ...
         1, ... %Epoching on the raw data not the ICs
-        [1:EEG.nbchan], ... %Channels to consider
+        [1:EEG.nbchan], ... %Channels to consider (exclude last 4 chans)
         -100, ... %low threshold
         100, ... %high threshold
         0, ... %epoch start time
@@ -43,7 +43,7 @@ for i = 1:length(file_list)
         EEG = pop_rejepoch(EEG, rejected_epochs, 0);
 
         % Save rejected epochs' indices in a subject-specific file
-        csvwrite(fullfile(output_folder, [file_name(1:end-4) '_Rejected_epochs.txt']), rejected_epochs);
+        csvwrite(fullfile(output_folder, [file_name(1:end-12) '_Rejected_epochs.txt']), rejected_epochs);
     else
         fprintf('No epochs rejected for %s\n', file_name);
     end

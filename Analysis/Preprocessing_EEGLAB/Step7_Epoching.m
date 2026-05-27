@@ -1,12 +1,13 @@
 %%% Step7: Epoching. Epoching (4s non everlapping windows) and CAR %%%
+clear all; close all;
 
 % Initialize EEGLAB
 addpath('/mnt/raid/software/eeglab2024.1/')
 eeglab
 
 % Set relevant folders
-input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/Controls/Step6_postICA_rej'
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/Controls/Step7_Epoching'
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step6_Post_ICA_Rej/'
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step7_Epoching/'
 
 % Create output folder if it does not exist
 if ~exist(output_folder, 'dir')
@@ -39,7 +40,7 @@ for i = 1:length(file_list)
     % Epoching
     EEG = eeg_regepochs(EEG, 'recurrence', 10, 'limits', [0 4], 'eventtype', 'event') % 4s non overlapping epochs.
                                                                                          % use this func for RS data (where there are no
-                                                                                         % events to lock epochs at
+                                                                                        % events to lock epochs at
     
     [ALLEEG EEG CURRENTSET] = pop_newset(ALLEEG, EEG, 1, 'setname', 're-ref_epoched')
     

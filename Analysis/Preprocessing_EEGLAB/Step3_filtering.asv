@@ -9,7 +9,7 @@ eeglab
 addpath('/mnt/raid/RU1/Analysis_scripts_code/Ettore/functions/')
 
 % Set relevant folders
-input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/PD_OFF/Step1_Import'
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output_2/Step1_Import/'
 
 % % Output folder for signals processe with Clean Line
 % output_folder_cl = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Step2a_Filtering_CL/'
@@ -17,7 +17,7 @@ input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessi
 % % Output fodler for signals processed with notch filter
 % output_folder_notch = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Step2b_Notch/'
 
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/PD_OFF/Step3_Filtering'
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output_2/Step3_Filtering/'
 
 % Create output folders
 % if ~exist(output_folder_cl, 'dir')

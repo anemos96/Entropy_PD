@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%% ENTROPY ANALYIS - Whole spectrum %%%%%%
+%%%%%% ENTROPY ANALYIS - Discrete Bands %%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % DESCRIPTION:
@@ -10,6 +10,7 @@
 %   Processing Steps:
 %   1. Data curation
 %       - Load .set file.
+%       - Filter data along frequency band of interest
 %       - Average all epochs (mean across 3rd dimension) -> 1 signal per channel.
 %       - Extract all 128 channels as separate time series.
 %       - Generate HCTSA.mat database.
@@ -24,15 +25,67 @@
 %   - HCTSA Toolbox (Highly Comparative Time-Series Analysis)
 %
 % AUTHOR: Ettore Napoli - ONDA Lab - University of Bologna
-% DATE:   February 2026
 
-%% 1 - Data Curation
+
+%% 1 - Filter datasets along frequency bands
+
+% Set folders
 % Set Folders
 input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output/Step8_Epoch_Rej/';
 file_extension = '*.set';
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis/';
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output/Discrete_FreqBands/';
 
 % Start EEGLAB
+eeglab_folder = '/mnt/raid/software/eeglab2024.1/';
+addpath(genpath(eeglab_folder));
+eeglab;
+
+% Create output folder
+if ~exist(output_folder, 'dir')
+    mkdir(output_folder);
+end
+
+% Select and load datasets
+input_files = dir(fullfile(input_folder, file_extension))
+
+for i = 1:length(input_files)
+    curr_file = input_files(i).name;
+    
+    EEG = pop_loadset('filename', char(curr_file), 'filepath', char(input_folder));
+
+    % Pass band filter delta (1-4 Hz)
+    EEG_delta = pop_eegfiltnew(EEG, 1, 4, [], 0);
+
+    % Save
+    EEG_delta = pop_saveset(EEG_delta, 'filename', [curr_file(1:end-4) '_delta.set'], 'filepath', output_folder);
+
+    % Pass band filter theta (4-8 HZ)
+    EEG_theta = pop_eegfiltnew(EEG, 4, 8, [], 0);
+
+    % Save
+    EEG_theta = pop_saveset(EEG_theta, 'filename', [curr_file(1:end-4) '_theta.set'], 'filepath', output_folder);
+
+    % Pass band filter alpa (8-12 Hz)
+    EEG_alpha = pop_eegfiltnew(EEG, 8, 12, [], 0);
+    
+    % Save
+    EEG_alpha = pop_saveset(EEG_alpha, 'filename', [curr_file(1:end-4) '_alpha.set'], 'filepath', output_folder);
+
+    % Pass band filter beta (13-30 Hz)
+    EEG_beta = pop_eegfiltnew(EEG, 13, 30, [], 0);
+
+    % Save
+    EEG_beta = pop_saveset(EEG_beta, 'filename', [curr_file(1:end-4) '_beta.set'], 'filepath', output_folder);
+end
+
+%% 2 Data curation
+clear all; close all; clc;
+
+% Set Folders
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output/Discrete_FreqBands/';
+file_extension = '*.set';
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis_FreqBands/'
+mkdir(output_folder)
 eeglab_folder = '/mnt/raid/software/eeglab2024.1/';
 addpath(genpath(eeglab_folder));
 eeglab;
@@ -58,7 +111,7 @@ for f = 1:length(input_files)
 
     EEG = pop_loadset('filename', char(file_name), 'filepath', char(input_folder));
 
-    clean_file_name = file_name(1:end-14);
+    clean_file_name = file_name(1:end-4);
 
     % Average data over the epochs (One continous time series per channel)
     mean_data = mean(EEG.data, 3);
@@ -82,7 +135,7 @@ end
 % Create .mat file with the timeseries data, labels and keywords
 % for TS_Init
 cd(output_folder)
-inp_filename = 'INP_ts.mat';
+inp_filename = 'INP_ts_FreqBand.mat';
 save(inp_filename, 'timeSeriesData', 'labels', 'keywords');
 
 % Define source file
@@ -103,17 +156,18 @@ catch ME
 end
 
 % Create HCTSA matrix
-TS_Init(inp_filename, {dst_mops, dst_ops}, true, 'HCTSA.mat');
+TS_Init(inp_filename, {dst_mops, dst_ops}, true, 'HCTSA_FreqBand.mat');
 
-%% 2 - Compute Entropy measures of interest
+
+%% 3 - Compute Entropy measures of interest
 clear all; close all; clc;
 
 % Set folders
-work_dir = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis';
+work_dir = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis_FreqBands/';
 cd(work_dir);
 
 % Load operations from HCTSA.mat
-[~, ~, Operations] = TS_LoadData('HCTSA.mat');
+[~, ~, Operations] = TS_LoadData('HCTSA_FreqBand.mat');
 
 % Find indices of measures of interest among operations
 idx_ApEn   = find(contains(Operations.Name, 'ApEn', 'IgnoreCase', true));
@@ -124,10 +178,10 @@ idx_MSE    = find(contains(Operations.Name, 'EN_MSE', 'IgnoreCase', true));
 target_ids = unique([idx_ApEn; idx_SampEn; idx_MSE]);
 
 % Compute Entropy Measures
-TS_Compute(false, [], target_ids, 'missing', 'HCTSA.mat', 'minimal');
+TS_Compute(false, [], target_ids, 'missing', 'HCTSA_FreqBand.mat', 'minimal');
 
 % Extract matrix containing computed results
-[TS_DataMat, TimeSeries, Operations] = TS_LoadData('raw'); 
+[TS_DataMat, TimeSeries, Operations] = TS_LoadData('HCTSA_FreqBand.mat'); 
 
 % Filter the columns so that it selects only those of interest
 cols_to_keep = ismember(Operations.ID, target_ids);
@@ -161,16 +215,17 @@ filename_mat = fullfile(work_dir, 'EntropyResults_FreqBands.mat');
 writetable(Readable_Table, filename_excel);
 save(filename_mat, 'Readable_Table');
 
-%% 3 - Clustering
+%% 4 - Clustering
+
 clear all; close all; clc;
 
 % Set folders
-work_dir = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis/Results_WholeSpectrum/';
+work_dir = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis_FreqBands/';
 cd(work_dir);
 
 % Load result table
-load EntropyResults_channel.mat;
-load Results_Entropy.mat
+load EntropyResults_FreqBands.mat;
+load Results_Entropy_FreqBand.mat
 
 % Prepare ROI object
 ROI = struct();
@@ -199,7 +254,6 @@ ROI.Temporal_R = {'TP10','T8', 'FT10', 'TP8', 'FT8','TPP8h',...
 ROI.Occipital_L = {'O1','PO9', 'O9', 'OI1h', 'POO9h', 'POO1', 'PO7', 'PO3'};
 ROI.Occipital_R = {'O2','OI2h', 'O10','POO2','POO10h', 'PO4', 'PO8', 'PO10'};
 ROI.Midline = {'Fz','Pz','Oz', 'Cz', 'POz', 'CPz', 'FCz'};
-
 ROI.Anterior = [ROI.Frontal_L, ROI.Frontal_R, ...
                 {'Fz', 'FCz'}, ...
                 {'FT9', 'FT7', 'FTT7h', 'FFT9h', 'FFT7h', 'FTT9h'}, ... 
@@ -213,11 +267,9 @@ ROI.Posterior = [ROI.Parietal_L, ROI.Parietal_R, ...
                  {'CCP1h', 'CCP3h', 'CCP5h'}, ...                         
                  {'CCP2h', 'CCP4h', 'CCP6h'}];                            
 
-% !!! (C1-C6, Cz, T7, T8 were excluded because they are on the same line of Cz)
 
 clusters = fieldnames(ROI);
-
-% Parse Column  and create subj and chan list
+% Parse Column name
 full_names = Readable_Table.Subject_Channel;
 subject_list = {};
 chan_list = {};
@@ -225,7 +277,7 @@ chan_list = {};
 for f = 1:length(full_names);
     name_parts = strsplit(full_names{f}, '_');
     chan = name_parts{end};
-    subj = name_parts{end-1};
+    subj = strjoin(name_parts(1:end-1), '_');
 
     % fill the lists
     subject_list{end+1, 1} = subj;
@@ -233,8 +285,6 @@ for f = 1:length(full_names);
 end
 
 unique_subjects = unique(subject_list);
-
-% Pre-allocate Result Struct
 Results_ROI = struct();
 
 % Extract entropy measures name
@@ -292,14 +342,15 @@ for m = 1:length(MoF)
 end
 
 % Save
-output_file = fullfile(work_dir, 'Results_ROI.mat');
+output_file = fullfile(work_dir, 'Results_ROI_FreqBands.mat');
 save(output_file, 'Results_ROI', 'unique_subjects', 'ROI', 'Results_ROI_partial');
+
 
 %% Data export
 clear all; close all; clc;
-work_dir = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis/Results_WholeSpectrum';
+work_dir = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Entropy_Analysis_FreqBands/';
 cd(work_dir);
-load('Results_ROI.mat')
+load('Results_ROI_FreqBands.mat')
 
 
 % Righe = Soggetti
@@ -385,8 +436,9 @@ end
 
 
 % 4. Salvataggio
-csv_filename_tot = fullfile(work_dir, 'Results_ROI_WholeSpec_tot.csv');
-csv_filename_par = fullfile(work_dir, 'Results_ROI_WholeSpec_par.csv');
+csv_filename_tot = fullfile(work_dir, 'Results_ROI_FreqBand_tot.csv');
+csv_filename_par = fullfile(work_dir, 'Results_ROI_FreqBand_par.csv');
 writetable(Final_Table_par, csv_filename_par);
 writetable(Final_Table_tot, csv_filename_tot);
 
+disp('All Good')

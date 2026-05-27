@@ -5,8 +5,8 @@ addpath('/mnt/raid/software/eeglab2024.1/')
 eeglab
 
 % Set relevant folders
-input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/Controls/Step5_preICA_rej'
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/Controls/Step6_postICA_rej'
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output_2/Step5_ICA/'
+output_folder = /mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output_2/Step5_ICA/'
 
 % Create output folder if it does not exist
 if ~exist(output_folder, 'dir')
