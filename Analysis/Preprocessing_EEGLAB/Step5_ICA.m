@@ -1,12 +1,13 @@
 %%% Step 5: ICA weights computation and ICLabel %%%
 
+clear all; close all;
 % Initialize EEGLAB
 addpath('/mnt/raid/software/eeglab2024.1/')
 eeglab
 
 % Set relevant folders
-input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/PD_OFF/Step4_ChRej'
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Studio_Rachi/Parkinson/Preprocessing_Output/PD_OFF/Step5_preICA_rej'
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step4_chRej/'
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step5_ICA/'
 
 % Create output folder if it does not exist
 if ~exist(output_folder, 'dir')
@@ -25,14 +26,14 @@ for i = 1:length(file_list)
     EEG = pop_loadset('filename', file_name, 'filepath', input_folder)
 
     % Resample
-    EEG = pop_resample(EEG, 500)
+    %EEG = pop_resample(EEG, 500)
     
     % Add channel location
     EEG = pop_chanedit(EEG, 'lookup','/mnt/raid/software/eeglab2024.1/plugins/dipfit/standard_BEM/elec/standard_1005.elc');
 
 
     % ICA (compute ICA only on EEG-flagged channel)
-    EEG = pop_runica(EEG, 'icatype', 'runica', 'chanind', {'EEG'}, 'extended', 1, 'interrupt', 'on')
+    EEG = pop_runica(EEG, 'icatype', 'runica', 'extended', 1, 'interrupt', 'on')
 
     % IC Label and IC flag
     EEG = pop_iclabel(EEG, 'default')

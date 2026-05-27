@@ -1,13 +1,12 @@
 %%% Step7: Epoching. Epoching (4s non everlapping windows) and CAR %%%
-clear all; close all;
 
 % Initialize EEGLAB
 addpath('/mnt/raid/software/eeglab2024.1/')
 eeglab
 
 % Set relevant folders
-input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step6_Post_ICA_Rej/'
-output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/missing/Step7_Epoching/'
+input_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output_2/Step6_Post_ICARej/'
+output_folder = '/mnt/raid/RU1/Raw_data/Ettore/Entropy/Healthy/Preprocessing_Output_2/Step7_Epoching/'
 
 % Create output folder if it does not exist
 if ~exist(output_folder, 'dir')
